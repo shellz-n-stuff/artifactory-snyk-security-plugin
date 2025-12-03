@@ -1,13 +1,13 @@
 package io.snyk.plugins.artifactory;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;

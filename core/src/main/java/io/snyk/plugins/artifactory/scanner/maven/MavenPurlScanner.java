@@ -3,7 +3,6 @@ package io.snyk.plugins.artifactory.scanner.maven;
 import io.snyk.plugins.artifactory.exception.CannotScanException;
 import io.snyk.plugins.artifactory.model.TestResult;
 import io.snyk.plugins.artifactory.scanner.PackageScanner;
-import io.snyk.plugins.artifactory.scanner.SnykDetailsUrl;
 import io.snyk.plugins.artifactory.scanner.purl.PurlScanner;
 import org.artifactory.fs.FileLayoutInfo;
 import org.artifactory.repo.RepoPath;
@@ -21,7 +20,7 @@ public class MavenPurlScanner implements PackageScanner {
   }
 
   @Override
-  public boolean scan(FileLayoutInfo fileLayoutInfo, RepoPath repoPath) {
+  public TestResult scan(FileLayoutInfo fileLayoutInfo, RepoPath repoPath) {
     LOG.debug("Maven: repoPath.getName() {}", repoPath.getName());
 
     MavenPackage pckg = MavenPackage.parse(fileLayoutInfo)
@@ -29,13 +28,8 @@ public class MavenPurlScanner implements PackageScanner {
 
     String purl = "pkg:maven/" + pckg.getName() + "@" + pckg.getVersion();
 
-    String packageDetailsUrl = getArtifactDetailsURL(pckg.getGroupID(), pckg.getArtifactID(), pckg.getVersion());
-
     return purlScanner.scan(pckg.getName(), pckg.getVersion(), "maven");
   }
 
-  public static String getArtifactDetailsURL(String groupID, String artifactID, String artifactVersion) {
-    return SnykDetailsUrl.create("maven", groupID + ":" + artifactID, artifactVersion).toString();
-  }
 }
 

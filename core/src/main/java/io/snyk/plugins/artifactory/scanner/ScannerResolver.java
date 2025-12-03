@@ -10,7 +10,6 @@ import io.snyk.plugins.artifactory.scanner.nuget.NugetScanner;
 import io.snyk.plugins.artifactory.scanner.purl.PurlScanner;
 import io.snyk.plugins.artifactory.scanner.python.PythonPurlScanner;
 import io.snyk.plugins.artifactory.scanner.rubygems.RubyGemsScanner;
-import io.snyk.sdk.api.SnykClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +19,6 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import static io.snyk.plugins.artifactory.configuration.PluginConfiguration.API_ORGANIZATION;
-import static io.snyk.plugins.artifactory.configuration.PluginConfiguration.API_REST_ENABLED;
 
 public class ScannerResolver {
   private static final Logger LOG = LoggerFactory.getLogger(ScannerResolver.class);
@@ -53,9 +51,9 @@ public class ScannerResolver {
     return Optional.ofNullable(scanner);
   }
 
-  public static ScannerResolver setup(ConfigurationModule configurationModule, SnykClient snykClient) {
+  public static ScannerResolver setup(ConfigurationModule configurationModule) {
     String orgId = configurationModule.getProperty(API_ORGANIZATION);
-    PurlScanner purlScanner = new PurlScanner(snykClient, orgId);
+    PurlScanner purlScanner = new PurlScanner();
     var scannerResolver = new ScannerResolver(configurationModule::getPropertyOrDefault);
     scannerResolver
       .register(Ecosystem.MAVEN, new MavenPurlScanner(purlScanner))

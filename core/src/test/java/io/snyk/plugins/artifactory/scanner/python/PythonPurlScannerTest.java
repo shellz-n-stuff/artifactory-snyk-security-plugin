@@ -75,7 +75,6 @@ class PythonPurlScannerTest {
   @Test
   void getModuleDetailsURL_shouldEncodeNameAndVersion() {
     PythonPackage pckg = new PythonPackage("changedetection.io", "0.39.10.post1");
-    String result = PythonPurlScanner.getModuleDetailsURL(pckg);
     assertThat(result).isEqualTo("https://security.snyk.io/package/pip/changedetection.io/0.39.10.post1");
   }
 }

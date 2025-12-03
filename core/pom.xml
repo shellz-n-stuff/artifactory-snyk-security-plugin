@@ -16,11 +16,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.snyk</groupId>
-      <artifactId>sdk</artifactId>
-      <version>${revision}</version>
-    </dependency>
-    <dependency>
       <groupId>org.artifactory</groupId>
       <artifactId>artifactory-papi</artifactId>
       <scope>provided</scope>

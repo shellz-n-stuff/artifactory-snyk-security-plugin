@@ -3,12 +3,7 @@ package io.snyk.plugins.artifactory.configuration;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static io.snyk.plugins.artifactory.configuration.PluginConfiguration.API_ORGANIZATION;
-import static io.snyk.plugins.artifactory.configuration.PluginConfiguration.API_TOKEN;
-import static io.snyk.plugins.artifactory.configuration.PluginConfiguration.API_URL;
-import static io.snyk.plugins.artifactory.configuration.PluginConfiguration.SCANNER_BLOCK_ON_API_FAILURE;
-import static io.snyk.plugins.artifactory.configuration.PluginConfiguration.SCANNER_LICENSE_THRESHOLD;
-import static io.snyk.plugins.artifactory.configuration.PluginConfiguration.SCANNER_VULNERABILITY_THRESHOLD;
+import static io.snyk.plugins.artifactory.configuration.PluginConfiguration.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

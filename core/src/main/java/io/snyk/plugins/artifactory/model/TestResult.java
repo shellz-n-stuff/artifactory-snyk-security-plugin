@@ -4,12 +4,12 @@ import io.snyk.plugins.artifactory.configuration.properties.ArtifactProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
-import static io.snyk.plugins.artifactory.configuration.properties.ArtifactProperty.*;
+import static io.snyk.plugins.artifactory.configuration.properties.ArtifactProperty.IS_MALWARE;
+import static io.snyk.plugins.artifactory.configuration.properties.ArtifactProperty.TEST_TIMESTAMP;
 
 public class TestResult {
   private static final Logger LOG = LoggerFactory.getLogger(TestResult.class);

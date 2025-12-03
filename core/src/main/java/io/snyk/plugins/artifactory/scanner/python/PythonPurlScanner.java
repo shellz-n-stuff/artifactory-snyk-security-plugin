@@ -3,7 +3,6 @@ package io.snyk.plugins.artifactory.scanner.python;
 import io.snyk.plugins.artifactory.exception.CannotScanException;
 import io.snyk.plugins.artifactory.model.TestResult;
 import io.snyk.plugins.artifactory.scanner.PackageScanner;
-import io.snyk.plugins.artifactory.scanner.SnykDetailsUrl;
 import io.snyk.plugins.artifactory.scanner.purl.PurlScanner;
 import org.artifactory.fs.FileLayoutInfo;
 import org.artifactory.repo.RepoPath;
@@ -21,7 +20,7 @@ public class PythonPurlScanner implements PackageScanner {
   }
 
   @Override
-  public boolean TestResult(FileLayoutInfo fileLayoutInfo, RepoPath repoPath) {
+  public TestResult scan(FileLayoutInfo fileLayoutInfo, RepoPath repoPath) {
     LOG.debug("Python: repoPath.toString() {}", repoPath.toString());
 
     PythonPackage pckg = PythonPackage.parseFromFileLayoutInfo(fileLayoutInfo)
@@ -29,10 +28,6 @@ public class PythonPurlScanner implements PackageScanner {
         .orElseThrow(() -> new CannotScanException("Module details not provided.")));
 
     return purlScanner.scan(pckg.getName(), pckg.getVersion(), "pypi");
-  }
-
-  public static String getModuleDetailsURL(PythonPackage pckg) {
-    return SnykDetailsUrl.create("pip", pckg.getName(), pckg.getVersion()).toString();
   }
 }
 

@@ -9,7 +9,7 @@ import io.snyk.plugins.artifactory.ecosystem.RepositoryMetadataEcosystemResolver
 import io.snyk.plugins.artifactory.model.Ignores;
 import io.snyk.plugins.artifactory.model.MonitoredArtifact;
 import io.snyk.plugins.artifactory.model.TestResult;
-import io.snyk.plugins.artifactory.model.ValidationSettings;
+import org.artifactory.exception.CancelException;
 import org.artifactory.fs.FileLayoutInfo;
 import org.artifactory.repo.RepoPath;
 import org.artifactory.repo.Repositories;
@@ -87,9 +87,16 @@ public class ScannerModule {
   }
 
   private void filter(MonitoredArtifact artifact) {
-    ValidationSettings validationSettings = ValidationSettings.from(configurationModule);
-    PackageValidator validator = new PackageValidator(validationSettings);
-    validator.validate(artifact);
+    TestResult testResult = artifact.getTestResult();
+    // If it has Malware then always block
+    if(testResult.getIsMalware()) {
+      throw new CancelException("Artifact blocked due to malware detection by Snyk", 403);
+    }
+    // TODO: Handle Package Age
+    // This will need:
+    // 1. An exception list to allow for things like Log4Shell type emergency updates
+    // 2. Filtering for internal artifacts/repos
+
   }
 
   private @NotNull MonitoredArtifact toMonitoredArtifact(TestResult testResult, @NotNull RepoPath repoPath) {

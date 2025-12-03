@@ -1,9 +1,9 @@
 package io.snyk.plugins.artifactory.configuration;
 
-import java.util.Properties;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import java.util.Properties;
 
 import static io.snyk.plugins.artifactory.configuration.PluginConfiguration.API_ORGANIZATION;
 import static io.snyk.plugins.artifactory.configuration.PluginConfiguration.API_TOKEN;

@@ -14,7 +14,6 @@ import io.snyk.sdk.SnykConfig;
 import io.snyk.sdk.api.SnykClient;
 import org.artifactory.fs.FileLayoutInfo;
 import org.artifactory.repo.RepoPath;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;

@@ -1,7 +1,6 @@
 package io.snyk.plugins.artifactory.scanner;
 
 import io.snyk.plugins.artifactory.configuration.properties.ArtifactProperties;
-import io.snyk.plugins.artifactory.configuration.properties.ArtifactProperty;
 import io.snyk.plugins.artifactory.configuration.properties.FakeArtifactProperties;
 import io.snyk.plugins.artifactory.model.Ignores;
 import io.snyk.plugins.artifactory.model.IssueSummary;
@@ -9,12 +8,10 @@ import io.snyk.plugins.artifactory.model.MonitoredArtifact;
 import io.snyk.plugins.artifactory.model.TestResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.xbill.DNS.Zone;
 
 import java.net.URI;
 import java.time.Duration;
 import java.time.ZonedDateTime;
-import java.util.InvalidPropertiesFormatException;
 import java.util.Optional;
 import java.util.stream.Stream;
 
