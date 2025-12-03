@@ -31,7 +31,7 @@ public class NpmPurlScanner implements PackageScanner {
 
     String packageDetailsUrl = getPackageDetailsURL(pckg);
 
-    return purlScanner.scan(purl, packageDetailsUrl);
+    return purlScanner.scan(pckg.getName(), pckg.getVersion(), "npm");
   }
 
   public static String getPackageDetailsURL(NpmPackage pckg) {

@@ -15,62 +15,41 @@ public class TestResult {
   private static final Logger LOG = LoggerFactory.getLogger(TestResult.class);
 
   private final ZonedDateTime timestamp;
-  private final IssueSummary vulnSummary;
-  private final IssueSummary licenseSummary;
-  private final URI detailsUrl;
+  // This can change!
+  private boolean isMalware = false;
+  private ZonedDateTime publishDate = null;
 
-  public TestResult(IssueSummary vulnSummary, IssueSummary licenseSummary, URI detailsUrl) {
-    this(ZonedDateTime.now(), vulnSummary, licenseSummary, detailsUrl);
+  public TestResult(boolean isMalware) {
+    this(ZonedDateTime.now(), isMalware);
   }
 
-  public TestResult(ZonedDateTime timestamp, IssueSummary vulnSummary, IssueSummary licenseSummary, URI detailsUrl) {
+  public TestResult(ZonedDateTime timestamp, boolean isMalware) {
     this.timestamp = timestamp;
-    this.vulnSummary = vulnSummary;
-    this.licenseSummary = licenseSummary;
-    this.detailsUrl = detailsUrl;
+    this.isMalware = isMalware;
   }
 
-  public IssueSummary getVulnSummary() {
-    return vulnSummary;
-  }
-
-  public IssueSummary getLicenseSummary() {
-    return licenseSummary;
-  }
-
-  public URI getDetailsUrl() {
-    return detailsUrl;
-  }
 
   public ZonedDateTime getTimestamp() {
     return timestamp;
   }
 
   public void write(ArtifactProperties properties) {
-    LOG.info("Writing Snyk properties for package {} - artifactory path {}", detailsUrl, properties.getArtifactPath());
+    LOG.info("Writing Snyk properties for package, artifactory path {}", properties.getArtifactPath());
     properties.set(TEST_TIMESTAMP, timestamp.toString());
-    properties.set(ISSUE_VULNERABILITIES, vulnSummary.toString());
-    properties.set(ISSUE_LICENSES, licenseSummary.toString());
-    properties.set(ISSUE_URL, detailsUrl.toString());
-    properties.set(ISSUE_URL_PLAINTEXT, " " + detailsUrl);
+    properties.set(IS_MALWARE, isMalware ? "true" : "false");
   }
 
   public static Optional<TestResult> read(ArtifactProperties properties) {
     Optional<ZonedDateTime> timestamp = properties.get(TEST_TIMESTAMP).map(ZonedDateTime::parse);
-    Optional<IssueSummary> vulns = properties.get(ISSUE_VULNERABILITIES).flatMap(IssueSummary::parse);
-    Optional<IssueSummary> licenses = properties.get(ISSUE_LICENSES).flatMap(IssueSummary::parse);
-    Optional<URI> detailsUrl = properties.get(ISSUE_URL)
-      .map(String::trim)
-      .map(URI::create);
+    String isPackageMalwareStr = String.valueOf(properties.get(IS_MALWARE));
 
-    if (timestamp.isEmpty() || vulns.isEmpty() || licenses.isEmpty() || detailsUrl.isEmpty()) {
+    if (timestamp.isEmpty() || isPackageMalwareStr.isEmpty()) {
       return Optional.empty();
     }
+    boolean isMalwarePackage = Boolean.parseBoolean(isPackageMalwareStr);
     return Optional.of(new TestResult(
       timestamp.get(),
-      vulns.get(),
-      licenses.get(),
-      detailsUrl.get()
+      isMalwarePackage
     ));
   }
 
@@ -79,21 +58,35 @@ public class TestResult {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     TestResult that = (TestResult) o;
-    return Objects.equals(timestamp, that.timestamp) && Objects.equals(vulnSummary, that.vulnSummary) && Objects.equals(licenseSummary, that.licenseSummary) && Objects.equals(detailsUrl, that.detailsUrl);
+    return Objects.equals(timestamp, that.timestamp) && Objects.equals(isMalware, that.isMalware) && Objects.equals(publishDate, that.publishDate) ;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(timestamp, vulnSummary, licenseSummary, detailsUrl);
+    return Objects.hash(timestamp, isMalware);
   }
 
   @Override
   public String toString() {
     return "TestResult{" +
       "timestamp=" + timestamp +
-      ", vulnSummary=" + vulnSummary +
-      ", licenseSummary=" + licenseSummary +
-      ", detailsUrl=" + detailsUrl +
+      ", isMalware=" + isMalware +
       '}';
+  }
+
+  public ZonedDateTime getPublishDate() {
+    return publishDate;
+  }
+
+  public void setPublishDate(ZonedDateTime publishDate) {
+    this.publishDate = publishDate;
+  }
+
+  public boolean getIsMalware() {
+    return this.isMalware;
+  }
+
+  public void setIsMalware(boolean isMalware) {
+    this.isMalware = isMalware;
   }
 }

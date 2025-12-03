@@ -21,18 +21,14 @@ public class PythonPurlScanner implements PackageScanner {
   }
 
   @Override
-  public TestResult scan(FileLayoutInfo fileLayoutInfo, RepoPath repoPath) {
+  public boolean TestResult(FileLayoutInfo fileLayoutInfo, RepoPath repoPath) {
     LOG.debug("Python: repoPath.toString() {}", repoPath.toString());
 
     PythonPackage pckg = PythonPackage.parseFromFileLayoutInfo(fileLayoutInfo)
       .orElseGet(() -> PythonPackage.parseFromUrl(repoPath.toString())
         .orElseThrow(() -> new CannotScanException("Module details not provided.")));
 
-    String purl = "pkg:pypi/" + pckg.getName() + "@" + pckg.getVersion();
-
-    String packageDetailsUrl = getModuleDetailsURL(pckg);
-
-    return purlScanner.scan(purl, packageDetailsUrl);
+    return purlScanner.scan(pckg.getName(), pckg.getVersion(), "pypi");
   }
 
   public static String getModuleDetailsURL(PythonPackage pckg) {

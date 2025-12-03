@@ -25,7 +25,7 @@ public class RubyGemsScanner implements PackageScanner {
 
     String packageDetailsUrl = getModuleDetailsURL(pckg.getName(), pckg.getVersion());
 
-    return purlScanner.scan(purl, packageDetailsUrl);
+    return purlScanner.scan(pckg.getName(), pckg.getVersion(), "gem");
   }
 
   public static String getModuleDetailsURL(String name, String version) {

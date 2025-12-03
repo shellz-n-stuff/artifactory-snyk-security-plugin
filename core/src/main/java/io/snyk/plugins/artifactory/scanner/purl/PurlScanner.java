@@ -2,6 +2,7 @@ package io.snyk.plugins.artifactory.scanner.purl;
 
 import io.snyk.plugins.artifactory.exception.SnykAPIFailureException;
 import io.snyk.plugins.artifactory.model.TestResult;
+import io.snyk.plugins.artifactory.scanner.MalwareCheck;
 import io.snyk.plugins.artifactory.scanner.TestResultConverter;
 import io.snyk.sdk.api.SnykClient;
 import io.snyk.sdk.api.SnykResult;
@@ -25,26 +26,12 @@ public class PurlScanner {
     this.orgId = orgId;
   }
 
-  public TestResult scan(String purl, String packageDetailsUrl) {
-    SnykResult<PurlIssues> result;
-    try {
-      LOG.debug("Running Snyk test: {}", packageDetailsUrl);
-      result = snykClient.get(PurlIssues.class, request ->
-        request
-          .withPath(String.format("rest/orgs/%s/packages/%s/issues",
-            URLEncoder.encode(orgId, UTF_8),
-            URLEncoder.encode(purl, UTF_8))
-          )
-          .withQueryParam("version", "2024-10-15")
-      );
-    } catch (Exception e) {
-      throw new SnykAPIFailureException(e);
-    }
+  public TestResult scan(String packageName, String packageVersion, String ecosystem) {
+    boolean isMalware = MalwareCheck.isMalware(packageName, packageVersion, ecosystem);
+    TestResult testResult = new TestResult(isMalware);
+    // TODO: Package Age check + add metadata for later filtering
 
-    PurlIssues testResult = result.get().orElseThrow(() -> new SnykAPIFailureException(result));
-    testResult.packageDetailsUrl = packageDetailsUrl;
-
-    return TestResultConverter.convert(testResult);
+    return testResult;
   }
 
 }

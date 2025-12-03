@@ -17,7 +17,7 @@ public class NugetScanner implements PackageScanner {
   }
 
   @Override
-  public TestResult scan(FileLayoutInfo fileLayoutInfo, RepoPath repoPath) {
+  public boolean scan(FileLayoutInfo fileLayoutInfo, RepoPath repoPath) {
     NugetPackage pckg = NugetPackage.parse(repoPath.getName())
       .orElseThrow(() -> new CannotScanException("Unexpected Nuget package name: " + repoPath.getName()));
 
@@ -25,7 +25,7 @@ public class NugetScanner implements PackageScanner {
 
     String packageDetailsUrl = getModuleDetailsURL(pckg.getName(), pckg.getVersion());
 
-    return purlScanner.scan(purl, packageDetailsUrl);
+    return purlScanner.scan(pckg.getName(), pckg.getVersion(), "nuget");
   }
 
   public static String getModuleDetailsURL(String name, String version) {
