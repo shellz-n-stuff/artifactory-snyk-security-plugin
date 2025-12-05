@@ -4,6 +4,7 @@ import io.snyk.plugins.artifactory.configuration.properties.ArtifactProperties;
 import io.snyk.plugins.artifactory.configuration.properties.ArtifactProperty;
 import org.slf4j.Logger;
 
+import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -20,11 +21,30 @@ public class MonitoredArtifact {
 
   private final Ignores ignores;
 
+  private final Instant lastModifiedDate;
+
+  private final boolean isRemoteRepository;
+
   public MonitoredArtifact(String path, TestResult testResult, Ignores ignores) {
+    this(path, testResult, ignores, null);
+  }
+
+  public MonitoredArtifact(String path, TestResult testResult, Ignores ignores, Boolean isRemoteRepository) {
+    this(path, testResult, ignores, isRemoteRepository, null);
+  }
+
+  public MonitoredArtifact(String path, TestResult testResult, Ignores ignores, boolean isRemoteRepository, Instant lastModifiedDate) {
     this.path = path;
     this.testResult = testResult;
     this.ignores = ignores;
+    this.lastModifiedDate = lastModifiedDate;
+    this.isRemoteRepository = isRemoteRepository;
   }
+
+  public boolean isRemoteRepository() {
+    return isRemoteRepository;
+  }
+
 
   public String getPath() {
     return path;
@@ -55,6 +75,7 @@ public class MonitoredArtifact {
     }
   }
 
+  // Purely used for cases where we are checking if it needs another test
   public static Optional<MonitoredArtifact> read(ArtifactProperties properties) {
     try {
       return TestResult.read(properties).map(testResult ->
@@ -75,12 +96,16 @@ public class MonitoredArtifact {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     MonitoredArtifact artifact = (MonitoredArtifact) o;
-    return Objects.equals(path, artifact.path) && Objects.equals(testResult, artifact.testResult) && Objects.equals(ignores, artifact.ignores);
+    return Objects.equals(path, artifact.path) && Objects.equals(testResult, artifact.testResult) && Objects.equals(ignores, artifact.ignores) && Objects.equals(lastModifiedDate, artifact.lastModifiedDate);
+  }
+
+  public Optional<Instant> getLastModifiedDate() {
+    return Optional.ofNullable(lastModifiedDate);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(path, testResult, ignores);
+    return Objects.hash(path, testResult, ignores, lastModifiedDate);
   }
 
   @Override
@@ -89,6 +114,7 @@ public class MonitoredArtifact {
       "path='" + path + '\'' +
       ", testResult=" + testResult +
       ", ignores=" + ignores +
+      ", lastModifiedDate=" + lastModifiedDate +
       '}';
   }
 }
