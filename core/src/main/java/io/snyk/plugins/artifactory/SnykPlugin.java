@@ -7,7 +7,6 @@ import io.snyk.plugins.artifactory.exception.CannotScanException;
 import io.snyk.plugins.artifactory.exception.SnykRuntimeException;
 import io.snyk.plugins.artifactory.scanner.ScannerModule;
 import io.snyk.plugins.artifactory.scanner.ScannerResolver;
-import org.artifactory.exception.CancelException;
 import org.artifactory.fs.ItemInfo;
 import org.artifactory.repo.RepoPath;
 import org.artifactory.repo.Repositories;
@@ -22,7 +21,7 @@ import java.net.http.HttpRequest;
 import java.util.Optional;
 import java.util.Properties;
 
-import static io.snyk.plugins.artifactory.configuration.PluginConfiguration.*;
+import static io.snyk.plugins.artifactory.configuration.PluginConfiguration.TEST_CONTINUOUSLY;
 import static java.lang.String.format;
 
 public class SnykPlugin {
@@ -43,17 +42,6 @@ public class SnykPlugin {
       String pluginVersion = PropertyLoader.loadPluginVersion(pluginsDirectory);
       configurationModule = new ConfigurationModule(properties);
       validateConfiguration();
-
-      LOG.info("Creating api client and modules...");
-      LOG.info("BaseURL: {}", configurationModule.getPropertyOrDefault(API_URL));
-      LOG.info("Organization: {}", configurationModule.getPropertyOrDefault(API_ORGANIZATION));
-      String token = configurationModule.getPropertyOrDefault(API_TOKEN);
-      if (null != token && token.length() > 4) {
-        token = token.substring(0, 4) + "...";
-      } else {
-        token = "no token configured";
-      }
-      LOG.debug("Token: {}", token);
 
       auditModule = new AuditModule();
       ScannerResolver scannerResolver = ScannerResolver.setup(configurationModule);
@@ -133,8 +121,6 @@ public class SnykPlugin {
 
     LOG.debug("Snyk Plugin Configuration:");
     configurationModule.getPropertyEntries().stream()
-      .filter(entry -> !API_TOKEN.propertyKey().equals(entry.getKey()))
-      .filter(entry -> !API_ORGANIZATION.propertyKey().equals(entry.getKey()))
       .map(entry -> entry.getKey() + "=" + entry.getValue())
       .sorted()
       .forEach(LOG::debug);

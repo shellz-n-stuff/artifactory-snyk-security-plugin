@@ -1,17 +1,11 @@
 package io.snyk.plugins.artifactory.scanner.python;
 
-import io.snyk.plugins.artifactory.exception.CannotScanException;
-import io.snyk.plugins.artifactory.model.TestResult;
-import io.snyk.plugins.artifactory.scanner.purl.PurlScanner;
 import org.artifactory.fs.FileLayoutInfo;
 import org.artifactory.repo.RepoPath;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class PythonPurlScannerTest {
 

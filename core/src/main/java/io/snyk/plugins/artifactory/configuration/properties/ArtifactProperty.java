@@ -1,17 +1,10 @@
 package io.snyk.plugins.artifactory.configuration.properties;
 
 public enum ArtifactProperty {
-  TEST_TIMESTAMP("snyk.test.timestamp"),
-  ISSUE_URL("snyk.issue.url"),
-  ISSUE_URL_PLAINTEXT("snyk.issue.url.plaintext"),
-  ISSUE_VULNERABILITIES("snyk.issue.vulnerabilities"),
-  ISSUE_VULNERABILITIES_FORCE_DOWNLOAD("snyk.issue.vulnerabilities.forceDownload"),
-  ISSUE_VULNERABILITIES_FORCE_DOWNLOAD_INFO("snyk.issue.vulnerabilities.forceDownload.info"),
-  ISSUE_LICENSES("snyk.issue.licenses"),
-  ISSUE_LICENSES_FORCE_DOWNLOAD("snyk.issue.licenses.forceDownload"),
-  ISSUE_LICENSES_FORCE_DOWNLOAD_INFO("snyk.issue.licenses.forceDownload.info"),
-  IS_MALWARE("snyk.is_malware"),
-  PACKAGE_PUBLISHED_AT("snyk.package.published_at");
+  TEST_TIMESTAMP("block_firewall.test.timestamp"),
+  IS_MALWARE("block_firewall.is_malware"),
+  PACKAGE_NAME("block_firewall.package.name"),
+  PACKAGE_VERSION("block_firewall.package.version");
 
 
   private final String propertyKey;

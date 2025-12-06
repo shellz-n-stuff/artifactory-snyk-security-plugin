@@ -18,8 +18,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static io.snyk.plugins.artifactory.configuration.PluginConfiguration.API_ORGANIZATION;
-
 public class ScannerResolver {
   private static final Logger LOG = LoggerFactory.getLogger(ScannerResolver.class);
   private final Function<PluginConfiguration, String> getConfig;
@@ -52,7 +50,6 @@ public class ScannerResolver {
   }
 
   public static ScannerResolver setup(ConfigurationModule configurationModule) {
-    String orgId = configurationModule.getProperty(API_ORGANIZATION);
     PurlScanner purlScanner = new PurlScanner();
     var scannerResolver = new ScannerResolver(configurationModule::getPropertyOrDefault);
     scannerResolver

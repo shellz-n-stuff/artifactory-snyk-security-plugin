@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import static io.snyk.plugins.artifactory.configuration.properties.ArtifactProperty.*;
+import static io.snyk.plugins.artifactory.configuration.properties.ArtifactProperty.IS_MALWARE;
 
 public class AuditModule {
 
@@ -34,10 +34,7 @@ public class AuditModule {
   }
 
   private boolean propertyIsRelevant(@Nonnull String propertyName) {
-    return ISSUE_LICENSES_FORCE_DOWNLOAD.propertyKey().equals(propertyName) ||
-      ISSUE_LICENSES_FORCE_DOWNLOAD_INFO.propertyKey().equals(propertyName) ||
-      ISSUE_VULNERABILITIES_FORCE_DOWNLOAD.propertyKey().equals(propertyName) ||
-      ISSUE_VULNERABILITIES_FORCE_DOWNLOAD_INFO.propertyKey().equals(propertyName) || IS_MALWARE.propertyKey().equals(propertyName)
+    return IS_MALWARE.propertyKey().equals(propertyName)
       ;
   }
 }

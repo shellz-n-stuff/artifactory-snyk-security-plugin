@@ -6,7 +6,6 @@ import io.snyk.plugins.artifactory.configuration.properties.ArtifactProperties;
 import io.snyk.plugins.artifactory.configuration.properties.RepositoryArtifactProperties;
 import io.snyk.plugins.artifactory.ecosystem.EcosystemResolver;
 import io.snyk.plugins.artifactory.ecosystem.RepositoryMetadataEcosystemResolver;
-import io.snyk.plugins.artifactory.model.Ignores;
 import io.snyk.plugins.artifactory.model.MonitoredArtifact;
 import io.snyk.plugins.artifactory.model.TestResult;
 import org.artifactory.exception.CancelException;
@@ -65,7 +64,7 @@ public class ScannerModule {
 
     resolveArtifact(repoPath)
       .ifPresentOrElse(
-        this::filter,
+        artifact -> filter(artifact, repoPath),
         () -> LOG.info("No vulnerability info found for {}", repoPath)
       );
   }
@@ -87,39 +86,54 @@ public class ScannerModule {
   private MonitoredArtifact runTestWith(PackageScanner scanner, RepoPath repoPath) {
     FileLayoutInfo fileLayoutInfo = repositories.getLayoutInfo(repoPath);
     TestResult testResult = scanner.scan(fileLayoutInfo, repoPath);
-    return toMonitoredArtifact(testResult, repoPath, isRemoteRepository(repoPath));
+    return toMonitoredArtifact(testResult, repoPath);
   }
 
-  private void filter(MonitoredArtifact artifact) {
+  private void filter(MonitoredArtifact artifact, RepoPath repoPath) {
+    boolean isRemote = isRemoteRepository(repoPath);
     TestResult testResult = artifact.getTestResult();
     // If it has Malware then always block
     if(testResult.getIsMalware()) {
-      throw new CancelException("Artifact blocked due to malware detection by Snyk", 403);
+      throw new CancelException("Artifact blocked due to malware detection by OSV", 403);
     }
     // TODO: Handle Package Age
     // This will need:
     // 1. An exception list to allow for things like Log4Shell type emergency updates
-    if (artifact.getLastModifiedDate().isEmpty()) {
+    Instant artifactModifiedDate = getLastModifiedDate(repoPath);
+    if (artifactModifiedDate == null) {
       LOG.error("No last modified time found for {}", artifact);
       throw new CancelException("Artifact blocked due to unknown package age", 403);
     }
 
+
+    Instant twoDaysAgo = Instant.now().minus(2, ChronoUnit.DAYS);
+    LOG.debug(
+      "firewall: Artifact {} modified date: {}, isRemote: {}, twoDaysAgo: {}",
+      artifact.getPath(),
+      artifactModifiedDate,
+      isRemote,
+      twoDaysAgo
+    );
     if (
-      // artifact is not than 2 days
-      artifact.getLastModifiedDate().get()
-        .isBefore(Instant.now().minus(2, ChronoUnit.DAYS))
-        &&
-        // It's a remote Artifact and not a local one
-        artifact.isRemoteRepository()) {
-      LOG.warn("Blocking artifact {} due to age {}", artifact.getPath(), artifact.getLastModifiedDate().get());
+      // artifact was changed recently IE less than 2 days
+        artifactModifiedDate.isAfter(twoDaysAgo)
+        // TODO: Check It's a remote Artifact and not a local one
+
+    ) {
+      LOG.warn(
+        "firewall: Package {}@{} is recent enough (modified date: {}) to block download.",
+        testResult.packageName,
+        testResult.packageVersion,
+        artifactModifiedDate
+      );
+      LOG.warn("firewall: Blocking artifact {} due to age {}", artifact.getPath(), artifact.getLastModifiedDate().get());
       // TODO: We need to code in exceptions for OSS stuff we maintain and actively use such as Misk
       throw new CancelException("Artifact blocked due to package age greater than 2 days", 403);
     }
   }
 
-  private @NotNull MonitoredArtifact toMonitoredArtifact(TestResult testResult, @NotNull RepoPath repoPath, boolean isRemote) {
-    Ignores ignores = Ignores.read(new RepositoryArtifactProperties(repoPath, repositories));
-    return new MonitoredArtifact(repoPath.toString(), testResult, ignores, isRemote, getLastModifiedDate(repoPath));
+  private @NotNull MonitoredArtifact toMonitoredArtifact(TestResult testResult, @NotNull RepoPath repoPath) {
+    return new MonitoredArtifact(repoPath.toString(), testResult, getLastModifiedDate(repoPath));
   }
 
   private Instant getLastModifiedDate(RepoPath repoPath) {
@@ -139,13 +153,12 @@ public class ScannerModule {
     String repoKey = repoPath.getRepoKey();
     RepositoryConfiguration repoConfig = repositories.getRepositoryConfiguration(repoKey);
     if (repoConfig == null) {
-      LOG.debug("Repository configuration not found for repoKey: {}", repoKey);
+      LOG.warn("Firewall: Repository configuration not found for repoKey: {}", repoKey);
       return false;
     }
     String repoType = repoConfig.getType();
 
-    LOG.debug("Found repository type: {}", repoType);
-
+    LOG.info("Firewall: Found repository type: {}", repoType);
     return repoType.equals("remote");
   }
 

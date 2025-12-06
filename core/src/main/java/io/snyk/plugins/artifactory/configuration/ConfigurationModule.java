@@ -1,14 +1,7 @@
 package io.snyk.plugins.artifactory.configuration;
 
 import javax.annotation.Nonnull;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import static io.snyk.plugins.artifactory.configuration.PluginConfiguration.API_ORGANIZATION;
-import static io.snyk.plugins.artifactory.configuration.PluginConfiguration.API_TOKEN;
-import static java.lang.String.format;
+import java.util.*;
 
 public class ConfigurationModule {
 
@@ -31,14 +24,7 @@ public class ConfigurationModule {
   }
 
   public void validate() {
-    final String apiToken = getProperty(API_TOKEN);
-    if (apiToken == null || apiToken.isEmpty()) {
-      throw new IllegalArgumentException(format("'%s' must not be null or empty", API_TOKEN.propertyKey()));
-    }
 
-    final String apiOrganization = getProperty(API_ORGANIZATION);
-    if (apiOrganization == null || apiOrganization.isEmpty()) {
-      throw new IllegalArgumentException(format("'%s' must not be null or empty", API_ORGANIZATION.propertyKey()));
-    }
+    List<String> allowListedPackages;
   }
 }

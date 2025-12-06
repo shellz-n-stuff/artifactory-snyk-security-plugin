@@ -8,8 +8,7 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
-import static io.snyk.plugins.artifactory.configuration.properties.ArtifactProperty.IS_MALWARE;
-import static io.snyk.plugins.artifactory.configuration.properties.ArtifactProperty.TEST_TIMESTAMP;
+import static io.snyk.plugins.artifactory.configuration.properties.ArtifactProperty.*;
 
 public class TestResult {
   private static final Logger LOG = LoggerFactory.getLogger(TestResult.class);
@@ -18,14 +17,18 @@ public class TestResult {
   // This can change!
   private boolean isMalware = false;
   private ZonedDateTime publishDate = null;
+  public final String packageName;
+  public final String packageVersion;
 
-  public TestResult(boolean isMalware) {
-    this(ZonedDateTime.now(), isMalware);
+  public TestResult(boolean isMalware, String packageName, String packageVersion) {
+    this(ZonedDateTime.now(), isMalware, packageName, packageVersion);
   }
 
-  public TestResult(ZonedDateTime timestamp, boolean isMalware) {
+  public TestResult(ZonedDateTime timestamp, boolean isMalware, String packageName, String packageVersion) {
     this.timestamp = timestamp;
     this.isMalware = isMalware;
+    this.packageName = packageName;
+    this.packageVersion = packageVersion;
   }
 
 
@@ -37,6 +40,8 @@ public class TestResult {
     LOG.info("Writing Snyk properties for package, artifactory path {}", properties.getArtifactPath());
     properties.set(TEST_TIMESTAMP, timestamp.toString());
     properties.set(IS_MALWARE, isMalware ? "true" : "false");
+    properties.set(PACKAGE_NAME, packageName);
+    properties.set(PACKAGE_VERSION, packageVersion);
   }
 
   public static Optional<TestResult> read(ArtifactProperties properties) {
@@ -49,7 +54,9 @@ public class TestResult {
     boolean isMalwarePackage = Boolean.parseBoolean(isPackageMalwareStr);
     return Optional.of(new TestResult(
       timestamp.get(),
-      isMalwarePackage
+      isMalwarePackage,
+      properties.get(PACKAGE_NAME).orElse(""),
+      properties.get(PACKAGE_VERSION).orElse("")
     ));
   }
 
