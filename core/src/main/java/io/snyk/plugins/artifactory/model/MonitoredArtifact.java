@@ -41,10 +41,6 @@ public class MonitoredArtifact {
 
   public MonitoredArtifact write(ArtifactProperties properties) {
     testResult.write(properties);
-
-    // Can add extra properties here if needed
-    // setDefaultArtifactProperty(properties, ISSUE_VULNERABILITIES_FORCE_DOWNLOAD, "false");
-
     return this;
   }
 
