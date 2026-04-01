@@ -36,7 +36,7 @@ public class NpmPackage {
     // Extracts package name before /-/ and version after last hyphen before .tgz
     Pattern pattern = Pattern.compile("^(?:.+:)?(?<packageName>.+)/-/.+-(?<packageVersion>\\d+\\.\\d+\\.\\d+.*)\\.tgz$");
     Matcher matcher = pattern.matcher(repoPath);
-    
+
     if (!matcher.matches()) {
       LOG.warn("Unexpected Npm package path: {}", repoPath);
       return Optional.empty();

@@ -4,10 +4,10 @@ import io.snyk.plugins.artifactory.configuration.properties.ArtifactProperties;
 import io.snyk.plugins.artifactory.configuration.properties.ArtifactProperty;
 import org.slf4j.Logger;
 
+import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
-import static io.snyk.plugins.artifactory.configuration.properties.ArtifactProperty.*;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class MonitoredArtifact {
@@ -18,12 +18,17 @@ public class MonitoredArtifact {
 
   private TestResult testResult;
 
-  private final Ignores ignores;
 
-  public MonitoredArtifact(String path, TestResult testResult, Ignores ignores) {
+  private final Instant lastModifiedDate;
+
+  public MonitoredArtifact(String path, TestResult testResult) {
+    this(path, testResult, null);
+  }
+
+  public MonitoredArtifact(String path, TestResult testResult, Instant lastModifiedDate) {
     this.path = path;
     this.testResult = testResult;
-    this.ignores = ignores;
+    this.lastModifiedDate = lastModifiedDate;
   }
 
   public String getPath() {
@@ -34,18 +39,8 @@ public class MonitoredArtifact {
     return testResult;
   }
 
-  public Ignores getIgnores() {
-    return ignores;
-  }
-
   public MonitoredArtifact write(ArtifactProperties properties) {
     testResult.write(properties);
-
-    setDefaultArtifactProperty(properties, ISSUE_VULNERABILITIES_FORCE_DOWNLOAD, "false");
-    setDefaultArtifactProperty(properties, ISSUE_VULNERABILITIES_FORCE_DOWNLOAD_INFO, "");
-    setDefaultArtifactProperty(properties, ISSUE_LICENSES_FORCE_DOWNLOAD, "false");
-    setDefaultArtifactProperty(properties, ISSUE_LICENSES_FORCE_DOWNLOAD_INFO, "");
-
     return this;
   }
 
@@ -55,13 +50,13 @@ public class MonitoredArtifact {
     }
   }
 
+  // Purely used for cases where we are checking if it needs another test
   public static Optional<MonitoredArtifact> read(ArtifactProperties properties) {
     try {
       return TestResult.read(properties).map(testResult ->
         new MonitoredArtifact(
           properties.getArtifactPath(),
-          testResult,
-          Ignores.read(properties)
+          testResult
         )
       );
     } catch (RuntimeException e) {
@@ -75,12 +70,16 @@ public class MonitoredArtifact {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     MonitoredArtifact artifact = (MonitoredArtifact) o;
-    return Objects.equals(path, artifact.path) && Objects.equals(testResult, artifact.testResult) && Objects.equals(ignores, artifact.ignores);
+    return Objects.equals(path, artifact.path) && Objects.equals(testResult, artifact.testResult) && Objects.equals(lastModifiedDate, artifact.lastModifiedDate);
+  }
+
+  public Optional<Instant> getLastModifiedDate() {
+    return Optional.ofNullable(lastModifiedDate);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(path, testResult, ignores);
+    return Objects.hash(path, testResult, lastModifiedDate);
   }
 
   @Override
@@ -88,7 +87,7 @@ public class MonitoredArtifact {
     return "MonitoredArtifact{" +
       "path='" + path + '\'' +
       ", testResult=" + testResult +
-      ", ignores=" + ignores +
+      ", lastModifiedDate=" + lastModifiedDate +
       '}';
   }
 }

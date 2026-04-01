@@ -6,4 +6,6 @@ import org.artifactory.repo.RepoPath;
 
 public interface PackageScanner {
   TestResult scan(FileLayoutInfo fileLayoutInfo, RepoPath repoPath);
+
+  //Instant getPackageReleaseDate(String packageName, String packageVersion);
 }

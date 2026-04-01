@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.snyk.plugins.artifactory.configuration.UserAgent.ARTIFACTORY_VERSION_ENV;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class UserAgentTest {
 

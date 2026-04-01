@@ -1,50 +1,43 @@
 package io.snyk.plugins.artifactory.scanner.purl;
 
-import io.snyk.plugins.artifactory.exception.SnykAPIFailureException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.snyk.plugins.artifactory.model.TestResult;
-import io.snyk.plugins.artifactory.scanner.TestResultConverter;
-import io.snyk.sdk.api.SnykClient;
-import io.snyk.sdk.api.SnykResult;
-import io.snyk.sdk.model.purl.PurlIssues;
+import io.snyk.plugins.artifactory.scanner.MalwareCheck;
 import org.slf4j.Logger;
 
-import java.net.URLEncoder;
+import java.net.http.HttpClient;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class PurlScanner {
 
   private static final Logger LOG = getLogger(PurlScanner.class);
 
-  private final SnykClient snykClient;
-  private final String orgId;
+  // deps.dev v3 API
+  private static final String DEPS_DEV_BASE =
+    "https://api.deps.dev/v3/systems/%s/packages/%s/versions/%s";
 
-  public PurlScanner(SnykClient snykClient, String orgId) {
-    this.snykClient = snykClient;
-    this.orgId = orgId;
+  private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
+  private static final ObjectMapper MAPPER = new ObjectMapper();
+
+  public PurlScanner() {
   }
 
-  public TestResult scan(String purl, String packageDetailsUrl) {
-    SnykResult<PurlIssues> result;
-    try {
-      LOG.debug("Running Snyk test: {}", packageDetailsUrl);
-      result = snykClient.get(PurlIssues.class, request ->
-        request
-          .withPath(String.format("rest/orgs/%s/packages/%s/issues",
-            URLEncoder.encode(orgId, UTF_8),
-            URLEncoder.encode(purl, UTF_8))
-          )
-          .withQueryParam("version", "2024-10-15")
-      );
-    } catch (Exception e) {
-      throw new SnykAPIFailureException(e);
-    }
+  public TestResult scan(String packageName, String packageVersion, String ecosystem) {
+    LOG.info(
+      "DoingTest: package={}, version={}, ecosystem={}",
+      packageName,
+      packageVersion,
+      ecosystem
+    );
 
-    PurlIssues testResult = result.get().orElseThrow(() -> new SnykAPIFailureException(result));
-    testResult.packageDetailsUrl = packageDetailsUrl;
+    // 1) Malware check (OSV)
+    boolean isMalware = MalwareCheck.isMalware(packageName, packageVersion, ecosystem);
+    TestResult testResult = new TestResult(isMalware, packageName, packageVersion);
 
-    return TestResultConverter.convert(testResult);
+    // Do other checks here (IE vulns or maintainer info) in the future
+
+    return testResult;
   }
 
 }

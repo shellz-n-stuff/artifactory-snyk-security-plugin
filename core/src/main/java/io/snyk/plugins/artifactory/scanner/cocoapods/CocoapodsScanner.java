@@ -3,7 +3,6 @@ package io.snyk.plugins.artifactory.scanner.cocoapods;
 import io.snyk.plugins.artifactory.exception.CannotScanException;
 import io.snyk.plugins.artifactory.model.TestResult;
 import io.snyk.plugins.artifactory.scanner.PackageScanner;
-import io.snyk.plugins.artifactory.scanner.SnykDetailsUrl;
 import io.snyk.plugins.artifactory.scanner.purl.PurlScanner;
 import org.artifactory.fs.FileLayoutInfo;
 import org.artifactory.repo.RepoPath;
@@ -27,15 +26,8 @@ public class CocoapodsScanner implements PackageScanner {
     CocoapodsPackage pckg = CocoapodsPackage.parse(repoPath.getName())
       .orElseThrow(() -> new CannotScanException("Unexpected Cocoapods package name" + repoPath.getName()));
 
-    String purl = "pkg:cocoapods/" + pckg.getName() + "@" + pckg.getVersion();
-
-    String packageDetailsUrl = getModuleDetailsURL(pckg.getName(), pckg.getVersion());
-
-    return purlScanner.scan(purl, packageDetailsUrl);
+    return purlScanner.scan(pckg.getName(), pckg.getVersion(), "cocoapods");
   }
 
-  public static String getModuleDetailsURL(String name, String version) {
-    return SnykDetailsUrl.create("cocoapods", name, version).toString();
-  }
 }
 
